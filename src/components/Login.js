@@ -65,8 +65,8 @@ const Login = () => {
             console.log(result);
         })
         .catch(error => alert(error.message))*/
-        //if ((values.usuario == 'JMONTERO') && (values.password == '1234')){
-        if (1==1){
+        if ((values.usuario == 'JMONTERO') && (values.password == '1234')){
+        //if (1==1){
             dispatch({
                 type: actionTypes.SET_USER,
                 user: {displayName:values.usuario,

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
 	Button,
 	Card,
@@ -15,6 +15,9 @@ import {
 	Col
 } from 'reactstrap'
 
+import { collection, getDocs, getDoc, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
+import { db } from '../firebaseConfig/firebase'
+
 import imgEntrada from "./imagenes/entrada.jpeg";
 import imgAlmuerzo from "./imagenes/almuerzo.jpeg";
 import imgRegresar from "./imagenes/regresar.jpeg";
@@ -22,13 +25,38 @@ import imgSalida from "./imagenes/salir.jpeg";
 import './marcas.css';
 
 //
-function SetMarca(idMarca){
+function SetMarca(idMarca) {
 	const hoy = new Date();
 
 	console.log("Registrada " + idMarca + ' a las ' + hoy)
 }
 
-const marcas = () => {
+const Marcas = () => {
+
+	//1- Configuramos los hooks
+	const [marcas, SetMarcas] = useState([])
+
+	//2- referenciamos a la DB firestore
+	const marcasCollection = collection(db, "marcas")
+
+	//3- Funcion para mostrar todos los docs
+	const getMarcas = async () => {
+		// const data = await getDocs(marcasCollection)
+		const data = await getDocs(query(marcasCollection, orderBy('entrada')))
+
+
+		SetMarcas(
+			data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+		)
+	}
+
+	//6- usamos useEffect
+	useEffect(() => {
+		getMarcas()
+	}, [])
+
+	//7- Devolvemos vista de nuestro componente
+
 	return (
 		<>
 			<Container className='container'>
@@ -89,72 +117,43 @@ const marcas = () => {
 
 					</div>
 					<div className='col col-md-9 border'>
-					<div className="col col-sm">
-						<div className="card mt-2">
-							<h5 className="card-header bg-gradient-primary text-white">
-									Registro de marcas
-							</h5>
-							<div id="collapse-example" className="collapse show" aria-labelledby="heading-example">
-								<div className="card">
-									<table className="table table-striped table-dark">
-										<thead>
-											<tr>
-												<th className='col-2'>Fecha</th>
-												<th className="col-2">Usuario</th>
-												<th className="col-2">Ingreso</th>
-												<th className="col-2">Almuerzo</th>
-												<th className="col-2">Regreso</th>
-												<th className="col-2">Salida</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												<th className="col-2">31/03/2022</th>
-												<td className="col-2">JMONTERO</td>
-												<td className="col-2">07:55 a.m.</td>
-												<td className="col-2">12:00 p.m.</td>
-												<td className="col-2">12:57 p.m.</td>
-												<td className="col-2">06:10 p.m.</td>
-											</tr>
-											<tr>
-												<th scope="row">31/03/2022</th>
-												<td>MBURQUE</td>
-												<td>08:25 a.m.</td>
-												<td>12:00 p.m.</td>
-												<td>12:55 p.m.</td>
-												<td>06:00 p.m.</td>
-											</tr>
-											<tr>
-												<th scope="row">31/03/2022</th>
-												<td>JMIRANDA</td>
-												<td>08:30 a.m.</td>
-												<td>12:10 p.m.</td>
-												<td>01:10 p.m.</td>
-												<td>05:55 p.m.</td>
-											</tr>
-											<tr>
-												<th scope="row">31/03/2022</th>
-												<td>RREDONDO</td>
-												<td>08:20 a.m.</td>
-												<td>12:00 p.m.</td>
-												<td>12:57 p.m.</td>
-												<td>06:05 p.m.</td>
-											</tr>
-											<tr>
-												<th scope="row">31/03/2022</th>
-												<td>LCORRALES</td>
-												<td>08:30 a.m.</td>
-												<td>01:00 p.m.</td>
-												<td>02:00 p.m.</td>
-												<td>06:00 p.m.</td>
-											</tr>
-										</tbody>
-									</table>
+						<div className="col col-sm">
+								<div className="card mt-2">
+									<h5 className="card-header bg-gradient-primary text-white">
+										Registro de marcas
+									</h5>
+									<div id="collapse-example" className="collapse show" aria-labelledby="heading-example">
+										<div className="card">
+											<table className="table table-striped table-dark">
+												<thead>
+													<tr>
+														<th className='col-2'>Fecha</th>
+														<th className="col-2">Usuario</th>
+														<th className="col-2">Ingreso</th>
+														<th className="col-2">Almuerzo</th>
+														<th className="col-2">Regreso</th>
+														<th className="col-2">Salida</th>
+													</tr>
+												</thead>
+												<tbody>
+													{marcas.map((marca) => (
+														<tr key={marca.id}>
+															<td>{marca.entrada.toDate().toLocaleDateString()} </td>
+															<td>{marca.usuario} </td>
+															<td>{marca.entrada.toDate().toLocaleTimeString('en-US')} </td>
+															<td>{marca.almuerzo.toDate().toLocaleTimeString('en-US')} </td>
+															<td>{marca.regreso.toDate().toLocaleTimeString('en-US')} </td>
+															<td>{marca.salida.toDate().toLocaleTimeString('en-US')} </td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
 
-					</div>
+							</div>
+						
 					</div>
 				</div>
 			</Container>
@@ -162,4 +161,4 @@ const marcas = () => {
 	)
 }
 
-export default marcas
+export default Marcas
