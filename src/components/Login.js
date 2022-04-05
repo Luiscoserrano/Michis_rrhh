@@ -1,6 +1,10 @@
 import React from 'react';
 import './Login.css';
 
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
+
+
 // context api
 //import { auth, provider } from '../../firebase'
 import { useStateValue } from '../state/provider'
@@ -9,13 +13,47 @@ import { actionTypes } from '../state/reducer'
 // images and icons
 import Michis_logo from './imagenes/Michis2.png';
 import { Button } from 'reactstrap';
+import Footer from './Footer';
 
 const Login = () => {
     const [state, dispatch] = useStateValue();
+    const [open, setOpen] = React.useState({
+        open: true
+      });
 
+    const [values, setValues] = React.useState({
+          usuario: "",
+          password: "",
+        });
+    
+    function handleChange(evt) {
+        /*
+        evt.target es el elemento que ejecuto el evento
+        name identifica el input y value describe el valor actual
+        */
+        const { target } = evt;
+        const { name, value } = target;
+        /*
+        Este snippet:
+        1. Clona el estado actual
+        2. Reemplaza solo el valor del
+            input que ejecutó el evento
+        */
+        const newValues = {
+            ...values,
+            [name]: value,
+            };
+        // Sincroniza el estado de nuevo
+        setValues(newValues);
+    }
     
 
-    const signIn = () => {
+    const signIn = (evt) => {
+         /*
+        Previene el comportamiento default de los
+        formularios el cual recarga el sitio
+        */
+        evt.preventDefault();
         // sign in
        /* auth.signInWithPopup(provider)
         .then(result => {
@@ -27,14 +65,29 @@ const Login = () => {
             console.log(result);
         })
         .catch(error => alert(error.message))*/
-        dispatch({
-            type: actionTypes.SET_USER,
-            user: {displayName:'Megumin',
-                photoURL: 'https://i.pinimg.com/736x/fa/53/b1/fa53b16145fbcdbb62249ef20bcbab12.jpg'
-            },
+        //if ((values.usuario == 'JMONTERO') && (values.password == '1234')){
+        if (1==1){
+            dispatch({
+                type: actionTypes.SET_USER,
+                user: {displayName:values.usuario,
+                    photoURL: 'https://i.pinimg.com/736x/fa/53/b1/fa53b16145fbcdbb62249ef20bcbab12.jpg'
+                },
 
-        })
+            })
+        }else{
+            console.log('Usuario no valido')
+            setOpen(true)
+        }
     }
+
+    const Alert = React.forwardRef(function Alert(props, ref) {
+        return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+      });
+      
+
+    const handleClose = (event, reason) => {
+        setOpen(false);
+    };
 
     return (
         <div className='container'>
@@ -56,29 +109,36 @@ const Login = () => {
                                     <div className="text-center">
                                         <h1 className="h4 text-gray-900 mb-4">Bienvenido!</h1>
                                     </div>
-                                    <form className="user">
+                                    <form className="user" onSubmit={signIn}>
                                         <div className="form-group">
-                                            <input type="usuario" className="form-control form-control-user"
+                                            <input type="text" className="form-control form-control-user"
                                                 id="InputUsuario" aria-describedby=""
-                                                placeholder="Ingrese un usuario valido..."/>
+                                                name='usuario'
+                                                value={values.usuario}
+                                                onChange={handleChange}
+                                                placeholder="Usuario"/>                                        
                                         </div>
                                         <div className="form-group">
                                             <input type="password" className="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Password"/>
+                                                name='password'
+                                                value={values.password}
+                                                onChange={handleChange}
+                                                id="Inputpassword" placeholder="Contraseña"/>
                                         </div>
-                                        <div className="form-group">
-                                            <div className="custom-control custom-checkbox small">
-                                                <input type="checkbox" className="custom-control-input" id="customCheck"/>
-                                                <label className="custom-control-label" for="customCheck">Recordar</label>
-                                            </div>
-                                        </div>
-                                        <Button type="submit" onClick={signIn} active block color="primary">Ingresar</Button>
+                                        <Button type="submit" block color="primary">Ingresar</Button>
                                     </form>
                                     <hr/>
                                     <div className="text-center">
                                         <a className="small" href="forgot-password.html">Olvido su clave?</a>
                                     </div>
                                 </div>
+                        
+                                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                                        Usuario o clave no valido.
+                                    </Alert>
+                                </Snackbar>
+
                             </div>
                         </div>
                     </div>
@@ -86,9 +146,10 @@ const Login = () => {
 
             </div>
     </div>
+    <Footer></Footer>
 
-            
         </div>
+        
     )
 }
 

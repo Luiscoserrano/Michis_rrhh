@@ -13,7 +13,7 @@ function App() {
   const [{ user }, dispatch] = useStateValue();
   return (
     <div className="App">
-      {!user ? <Login />
+      {!user ? <Marcas />
         :(
           <BrowserRouter>
             <Routes>
